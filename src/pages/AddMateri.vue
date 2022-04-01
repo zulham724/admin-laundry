@@ -64,6 +64,7 @@
               />
               <!-- Dilihat -->
               <q-select
+                :rules="[(val) => !!val || 'Harus diisi']"
                 :options="visibilities"
                 v-model="selectedVisibility"
                 option-label="label"
@@ -125,13 +126,13 @@
             <!-- KONDISI SUDAH ADA SUB MATERI -->
             <div class="q-py-xl" v-if="form.contents.length">
               <div
-                v-for="(content, i) in form.contents"
+                v-for="content in form.contents"
                 :key="content.key"
                 class="col-4"
               >
                 <item-component
                   :item="content"
-                  @delete="deleteContet(payload)"
+                  @delete="deleteContent(content)"
                 ></item-component>
               </div>
             </div>
@@ -246,6 +247,7 @@ export default {
           okBtn: true,
         })
         .onOk(() => {
+          this.$store.commit("Module/CLEAR_FORM_MODULE");
           this.$router.push("/");
         });
     },
@@ -279,7 +281,7 @@ export default {
     onSubmit() {
       console.log(this.form, this.$store.getters["Module/formModule"]);
       this.$refs.form.validate().then((valid) => {
-        if (valid) {
+        if (valid && this.form.contents.length) {
           this.loading = true;
           let formData = jsonToFormData(this.form);
           this.$store
@@ -295,6 +297,12 @@ export default {
             .finally(() => {
               this.loading = false;
             });
+        } else {
+          this.$q.notify({
+            color: "negative",
+            textColor: "white",
+            message: "Harap isi semua data",
+          });
         }
       });
     },

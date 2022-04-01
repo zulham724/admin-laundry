@@ -1,165 +1,55 @@
 <template>
   <q-page class="q-pa-md" style="background-color: #fafafa">
-    <!-- TAB MATERI -->
-    <div
-      class="row bg-transparent text-weight-medium"
-      style="font-size: medium; color: #2a2b30"
-    >
-      <div class="col-4 q-py-md self-center text-center">Nama Materi</div>
-      <div class="col-1 q-py-md self-center text-center">Visibilitas</div>
-      <div class="col-2 q-py-md self-center text-center">Tanggal Buat</div>
-      <div class="col-2 q-py-md self-center text-center">Durasi</div>
-      <div class="col-1 q-py-md self-center text-center">Kunjungan</div>
-      <div class="col-2 q-py-md self-center text-center">Isi Materi</div>
-    </div>
-
-    <q-separator dark color="black" class="q-my-sm" />
-
-    <!-- TAB ISI MATERI (KOSONG) -->
-    <div class="text-center self-center q-pa-xl" v-if="false">
-      <div class="text-h5 text-weight-medium q-py-md">
-        Belum ada materi yang kamu buat
-      </div>
+    <div class="row justify-between q-pa-sm">
+      <div class="text-h5 text-weight-bold">Data materi Laundry</div>
       <q-btn
+        @click="$router.push('add-materi')"
+        color="primary"
+        label="Tambah materi"
         flat
-        text-color="white"
-        label="Buat Materi"
-        style="background-color: #5e5eef"
-      />
+      ></q-btn>
     </div>
-
-    <!-- TAB ISI MATERI (BERISI) -->
-    <div>
-      <div
-        v-for="q in 19"
-        :key="q"
-        class="row text-center bg-white q-my-sm"
-        style="font-size: small; color: #2a2b30"
-        @click="$router.push(`detail-materi-admin`)"
-      >
-        <div class="col-4 q-py-md self-center text-center">
-          Teknik membangun bisnis yang sukses
-        </div>
-        <div class="row col-1 text-center q-py-md self-center q-gutter-x-sm">
-          <div class="self-center">
-            <q-icon
-              name="fas fa-eye"
-              size="17px"
-              style="color: #1ee43e"
-            ></q-icon>
-          </div>
-
-          <div class="self-center">Public</div>
-        </div>
-        <div class="col-2 text-center q-py-md self-center">21 Maret 2022</div>
-        <div class="col-2 text-center q-py-md self-center">1 Jam 45 Menit</div>
-        <div class="col-1 text-center q-py-md self-center">0 Kunjungan</div>
-        <div class="col-2 text-center q-py-md self-center">3 Video 1 Text</div>
-      </div>
-
-      <div class="row">
-        <div class="col-6 bg-transparent"></div>
-        <div class="col-6 bg-transparent">
-          <div class="row">
-            <div class="col-4 self-center q-py-xs">
-              <q-btn-dropdown flat class="bg-transparent">
-                <q-list>
-                  <q-item clickable v-close-popup @click="onItemClick">
-                    <q-item-section>
-                      <q-item-label>Photos</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item clickable v-close-popup @click="onItemClick">
-                    <q-item-section>
-                      <q-item-label>Videos</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item clickable v-close-popup @click="onItemClick">
-                    <q-item-section>
-                      <q-item-label>Articles</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-            </div>
-            <div class="col-4 self-center q-py-xs"></div>
-            <div class="col-1 self-center q-py-xs"></div>
-            <div class="col-1 self-center q-py-xs"></div>
-            <div class="col-1 self-center q-py-xs"></div>
-            <div class="col-1 self-center q-py-xs" style="color: #fafafa">
-              k
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FOOTER MENUJU HALAMAN SELANJUTNYA -->
-    <div class="fixed-bottom">
-      <div class="row">
-        <div class="col-6 bg-white"></div>
-        <div class="col-6 bg-white">
-          <div class="row">
-            <div class="col-4 self-center q-py-xs">
-              <q-btn-dropdown
-                flat
-                class="bg-transparent"
-                label="Baris perhalaman"
-              >
-                <q-list>
-                  <q-item clickable v-close-popup @click="onItemClick">
-                    <q-item-section>
-                      <q-item-label>Photos</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item clickable v-close-popup @click="onItemClick">
-                    <q-item-section>
-                      <q-item-label>Videos</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-item clickable v-close-popup @click="onItemClick">
-                    <q-item-section>
-                      <q-item-label>Articles</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-            </div>
-            <div class="col-4 self-center q-py-xs">1-1 dari 1</div>
-            <div class="col-1 self-center q-py-xs">ki</div>
-            <div class="col-1 self-center q-py-xs">k</div>
-            <div class="col-1 self-center q-py-xs">k</div>
-            <div class="col-1 self-center q-py-xs">ka</div>
-          </div>
-        </div>
+    <div style="height: 20px"></div>
+    <div class="row">
+      <div class="col-sm-4 q-pa-sm" v-for="module in modules" :key="module.id">
+        <item-component :item="module" @delete="deletedModule"></item-component>
       </div>
     </div>
   </q-page>
 </template>
 
 <script>
+import ItemComponent from "src/components/module/ItemComponent.vue";
 export default {
+  components: {
+    ItemComponent,
+  },
   data() {
     return {
       modules: [],
     };
   },
   mounted() {
-    this.getModules();
+    this.init();
   },
   methods: {
+    init() {
+      this.getModules();
+    },
     onItemClick() {
       console.log("Clicked on an Item");
     },
     getModules() {
       this.$store.dispatch("Module/getModules").then((res) => {
         console.log("cek data", res);
-        //this.modules = res.data;
+        this.modules = res.data;
       });
+    },
+    deletedModule(id) {
+      let index = this.modules.findIndex((module) => module.id == id);
+      if (index > -1) {
+        this.modules.splice(index, 1);
+      }
     },
   },
 };

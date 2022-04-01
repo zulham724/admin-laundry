@@ -18,9 +18,12 @@ const mutations = {
     state.tittle = "asd";
     // state.formModule[payload.key] = payload.value;
   },
-  RESET_FORM_MODULE(state) {
+  CLEAR_FORM_MODULE(state) {
     state.formModule = {
+      tittle: "",
+      description: "",
       contents: [],
+      is_public: null,
     };
   },
   REMOVED_CONTENT(state, payload) {

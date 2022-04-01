@@ -21,7 +21,7 @@
         </div>
 
         <div>
-          <q-form>
+          <q-form ref="form">
             <q-card flat style="background-color: #eef0fc">
               <!-- JIKA BELUM ADA THUMBNAIL -->
               <div v-if="!thumb64" class="row q-py-md" @click="goToFileThumb()">
@@ -120,14 +120,16 @@
               style="background-color: #eef0fc"
               label="Tambahkan Judul"
               v-model="content.tittle"
+              :rules="[(v) => !!v || 'Judul tidak boleh kosong']"
             />
-            <q-input
-              type="textarea"
+            <q-editor
               class="q-mt-md"
               outlined
               style="background-color: #eef0fc"
               label="Isi Submateri"
               v-model="content.description"
+              min-height="5rem"
+              :rules="[(val) => !!val.length || 'Isi tidak boleh kosong']"
             />
             <q-input
               class="q-mt-md q-mb-md"
@@ -136,6 +138,7 @@
               style="background-color: #eef0fc"
               label="Durasi Baca"
               v-model.number="content.duration"
+              :rules="[(v) => !!v || 'Durasi tidak boleh kosong']"
             >
               <template v-slot:append>
                 <div style="font-size: small">menit</div>
@@ -256,9 +259,25 @@ export default {
     },
     saveContent() {
       console.log(this.content);
-      this.content.key = new Date().getTime();
-      this.$store.commit("Module/ADD_CONTENT", this.content);
-      this.$router.push("add-materi");
+      this.$refs.form.validate().then((valid) => {
+        if (valid && this.content.description.length) {
+          console.log(this.content);
+          this.content.key = new Date().getTime();
+          this.$store.commit("Module/ADD_CONTENT", this.content);
+          this.$q.notify({
+            color: "positive",
+            textColor: "white",
+            message: "Materi berhasil ditambahkan",
+          });
+          this.$router.push("/add-materi");
+        } else {
+          this.$q.notify({
+            color: "negative",
+            textColor: "white",
+            message: "Isi semua data dengan benar",
+          });
+        }
+      });
     },
   },
 };

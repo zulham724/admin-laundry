@@ -78,7 +78,7 @@
         </q-btn>
       </div>
       <!-- Edit -->
-      <div class="row q-mt-sm">
+      <!-- <div class="row q-mt-sm">
         <q-btn
           flat
           dense
@@ -93,7 +93,7 @@
             Edit
           </div>
         </q-btn>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -118,8 +118,9 @@ export default {
   },
   methods: {
     async init() {
-      let res = await fileToBase64(this.content.thumbnail);
-      this.thumbnail64 = res.src;
+      if (this.content.thumbnail) {
+        this.thumbnail64 = await fileToBase64(this.content.thumbnail);
+      }
     },
     deleteContent() {
       this.$commit("Module/REMOVED_CONTENT", { key: this.content.key });

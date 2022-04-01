@@ -133,13 +133,13 @@
               label="Tambahkan Judul"
               :rules="[(val) => !!val.length || 'Judul tidak boleh kosong']"
             />
-            <q-input
-              type="textarea"
+            <q-editor
               class="q-mt-md"
               outlined
               style="background-color: #eef0fc"
               label="Isi Submateri"
               v-model="content.description"
+              min-height="5rem"
               :rules="[(val) => !!val.length || 'Isi tidak boleh kosong']"
             />
             <q-input
@@ -257,17 +257,24 @@ export default {
       });
     },
     saveContent() {
+      console.log(this.content);
       this.$refs.form.validate().then((valid) => {
-        if (valid) {
+        if (valid && this.content.description.length) {
           console.log(this.content);
           this.content.key = new Date().getTime();
           this.$store.commit("Module/ADD_CONTENT", this.content);
           this.$q.notify({
             color: "positive",
             textColor: "white",
-            message: "Content berhasil disimpan",
+            message: "Materi berhasil ditambahkan",
           });
           this.$router.push("/add-materi");
+        } else {
+          this.$q.notify({
+            color: "negative",
+            textColor: "white",
+            message: "Isi semua data dengan benar",
+          });
         }
       });
     },
