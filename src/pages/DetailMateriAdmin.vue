@@ -75,7 +75,7 @@
           </div>
         </div>
       </div>
-      <div class="col-9 q-pa-sm">
+      <div class="col-9 q-pa-xs">
         <div
           class="row text-weight-medium"
           style="color: #2a2b30; font-size: x-large"
@@ -275,7 +275,7 @@
 
     <!-- Dialog -->
     <q-dialog v-model="itemClicked" full-height full-width persistent>
-      <q-card class="column full-height q-pa-md">
+      <q-card class="column full-height q-pa-sm">
         <div class="row justify-end">
           <q-btn
             v-close-popup
@@ -347,6 +347,41 @@
                 0 Kunjungan
               </div>
             </div>
+          </div>
+          <div class="row justify-center text-center q-mt-md">
+            <q-img
+              src="~/assets/thumbnail.svg"
+              width="800px"
+              height="400px"
+              style="border-radius: 10px 10px 0px 0px"
+            >
+            </q-img>
+          </div>
+          <div
+            class="row justify-center text-center q-mt-md text-weight-medium"
+            style="color: #2a2b30; font-size: large"
+          >
+            <div class="col-2" style="display: block"></div>
+            <div class="col-8" style="display: block">
+              Ini adalah deskripsi dari anak sekolahan yang sedang pkl di
+              ardata. Saya sudah pkl di ardata selama 3 bulan lamanya dan itu
+              memberikan saya pengalaman yang lebih
+            </div>
+            <div class="col-2" style="display: block"></div>
+          </div>
+          <!-- Button edit -->
+          <div class="row justify-center text-center q-mt-md">
+            <q-btn
+              @click="$router.push(`/edit-materi`)"
+              flat
+              dense
+              no-caps
+              style="background-color: #5e5eef; width: 200px"
+            >
+              <div class="text-weight-medium q-pa-xs" style="color: #fafafa">
+                Edit
+              </div>
+            </q-btn>
           </div>
         </div>
       </q-card>

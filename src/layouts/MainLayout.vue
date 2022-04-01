@@ -23,7 +23,7 @@
             v-if="$q.screen.gt.sm"
           >
           </q-btn>
-          <q-btn
+          <!-- <q-btn
             round
             dense
             flat
@@ -44,7 +44,7 @@
             href="https://github.com/sponsors/pratik227"
             target="_blank"
           >
-          </q-btn>
+          </q-btn> -->
           <q-btn round dense flat color="white" icon="notifications">
             <q-badge color="red" text-color="white" floating> 5 </q-badge>
             <q-menu>
@@ -199,10 +199,7 @@
           </q-item-section>
         </q-item> -->
 
-        <q-item
-          to="/detail-materi-admin"
-          active-class="q-item-no-link-highlighting"
-        >
+        <q-item to="/materi-admin" active-class="q-item-no-link-highlighting">
           <q-item-section avatar>
             <q-icon name="list" />
           </q-item-section>

@@ -5,7 +5,9 @@ const state = {
     tittle: "",
     description: "",
     contents: [],
+    is_public: null,
   },
+  tittle: "",
 };
 
 const mutations = {
@@ -13,7 +15,8 @@ const mutations = {
     state.formModule.contents.push(payload);
   },
   UPDATE_FORM_MODULE(state, payload) {
-    state.formModule[payload.key] = payload.value;
+    state.tittle = "asd";
+    // state.formModule[payload.key] = payload.value;
   },
   RESET_FORM_MODULE(state) {
     state.formModule = {
@@ -39,12 +42,15 @@ const mutations = {
 };
 
 const actions = {
+  doUpdateFormModule({ commit }, payload) {
+    commit("UPDATE_FORM_MODULE", JSON.parse(JSON.stringify(payload)));
+  },
   getModules() {
     return new Promise((resolve, reject) => {
       api
         .get("/api/admin/module")
         .then((res) => {
-          resolve(res.data);
+          resolve(res);
         })
         .catch((err) => {
           reject(err);
