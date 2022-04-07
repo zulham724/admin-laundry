@@ -6,7 +6,7 @@
     <div style="border-radius: 10px 10px 0px 0px">
       <div v-if="thumbnail64">
         <q-img
-          :src="thumbnail64"
+          :src="thumbnail64.src"
           height="180px"
           style="border-radius: 10px 10px 0px 0px"
         >
@@ -115,11 +115,13 @@ export default {
   },
   mounted() {
     this.init();
+    console.log('cek item', this.item)
   },
   methods: {
     async init() {
       if (this.content.thumbnail) {
         this.thumbnail64 = await fileToBase64(this.content.thumbnail);
+        console.log('thumbnail64', this.thumbnail64)
       }
     },
     deleteContent() {

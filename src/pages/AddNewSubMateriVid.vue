@@ -4,12 +4,13 @@
       <!-- BUTTON BATAL -->
       <div class="col-2 text-center self-cemter q-pt-lg">
         <q-btn
+          :disable="loadingAddModuleContent"
           no-caps
           outline
           flat
           text-color="black"
           label="Batal"
-          @click="$router.push('/add-materi')"
+          @click="$router.back()"
           style="background-color: #fff; width: 80%"
         />
       </div>
@@ -23,11 +24,14 @@
 
         <div>
           <q-form ref="form">
-            <q-card flat style="background-color: #eef0fc">
+            <q-card
+              flat
+              style="border: 1px solid grey; background-color: transparent"
+            >
               <!-- JIKA BELUM ADA THUMBNAIL -->
               <div v-if="!thumb64" class="row q-py-md" @click="goToFileThumb()">
                 <div class="col-3 self-center">
-                  <q-img src="~/assets/gng.svg" width="25%" />
+                  <q-img src="~/assets/yt.svg" width="25%" />
                 </div>
                 <div class="col-9">
                   <div class="text-h6 text-weight-medium">Tambah Thumbnail</div>
@@ -59,7 +63,7 @@
                   </div>
                 </div>
                 <div class="col-6" @click="clearThumbnail()">
-                  <div><q-img src="~/assets/gng.svg" width="25%" /></div>
+                  <div><q-img src="~/assets/yt.svg" width="25%" /></div>
                   <div class="text-weight-medium q-py-sm">ganti thumbnail</div>
                 </div>
               </div>
@@ -67,18 +71,18 @@
             <q-card
               flat
               class="q-py-xl q-mt-md"
-              style="background-color: #eef0fc"
+              style="border: 1px solid grey; background-color: transparent"
             >
-              <!-- JIKA BELUM ADA GAMBAR -->
-              <div @click="goToFilePic()" v-if="!picture">
+              <!-- JIKA BELUM ADA VIDEO -->
+              <div @click="goToFilePic()" v-if="!content.video">
                 <br />
                 <br />
                 <br />
                 <br />
                 <div>
-                  <q-img src="~/assets/gng.svg" width="10%" />
+                  <q-img src="~/assets/yt.svg" width="10%" />
                 </div>
-                <div class="text-h6 text-weight-medium">Tambah Gambar</div>
+                <div class="text-h6 text-weight-medium">Tambah Video</div>
                 <div style="color: #6e6d8f text-weight-medium">
                   1600 x 1200 atau direkomendasikan menggunakan resolusi yang
                   lebih besar.Max 10MB
@@ -88,12 +92,23 @@
                 <br />
                 <br />
               </div>
-              <!-- JIKA SUDAH ADA GAMBAR -->
-              <div class="row" v-if="!!picture">
+              <!-- JIKA SUDAH ADA VIDEO -->
+              <div class="row" v-if="content.video">
                 <div class="col-6">
                   <div class="row">
                     <div class="col-10 text-center">
-                      <q-img :src="img64" width="60%" />
+                      <vue-plyr
+                        ref="plyr"
+                        id="plyr"
+                        :options="{ ratio: '16:9' }"
+                      >
+                        <video
+                          id="video"
+                          ref="video"
+                          preload="metadata"
+                          :src="`${vid64}#t=0.1}`"
+                        ></video>
+                      </vue-plyr>
                     </div>
                     <div class="col-2 self-start">
                       <q-btn
@@ -104,29 +119,28 @@
                         round
                         size="md"
                         icon="close"
-                        @click="clearImage()"
+                        @click="clearVideo()"
                       />
                     </div>
                   </div>
                 </div>
-                <div class="col-6" @click="clearImage()">
-                  <div><q-img src="~/assets/gng.svg" width="25%" /></div>
-                  <div class="text-weight-medium q-py-sm">ganti gambar</div>
+                <div class="col-6" @click="clearVideo()">
+                  <div><q-img src="~/assets/yt.svg" width="25%" /></div>
+                  <div class="text-weight-medium q-py-sm">ganti video</div>
                 </div>
               </div>
             </q-card>
             <q-input
               class="q-mt-md"
               outlined
-              style="background-color: #eef0fc"
-              label="Tambahkan Judul"
               v-model="content.tittle"
-              :rules="[(v) => !!v || 'Judul tidak boleh kosong']"
+              label="Tambahkan Judul"
+              :rules="[(val) => !!val.length || 'Judul tidak boleh kosong']"
             />
             <q-editor
+              style="background-color: transparent"
               class="q-mt-md"
               outlined
-              style="background-color: #eef0fc"
               label="Isi Submateri"
               v-model="content.description"
               min-height="5rem"
@@ -136,10 +150,8 @@
               class="q-mt-md q-mb-md"
               outlined
               type="number"
-              style="background-color: #eef0fc"
               label="Durasi Baca"
               v-model.number="content.duration"
-              :rules="[(v) => !!v || 'Durasi tidak boleh kosong']"
             >
               <template v-slot:append>
                 <div style="font-size: small">menit</div>
@@ -151,6 +163,9 @@
       <!-- BUTTON SIMPAN -->
       <div class="col-2 text-center self-cemter q-pt-lg">
         <q-btn
+          :loading="loadingAddModuleContent"
+          :disable="loadingAddModuleContent"
+          no-caps
           flat
           text-color="white"
           label="Simpan"
@@ -159,69 +174,90 @@
         />
       </div>
     </div>
+
+    <!-- File image -->
     <q-file
       ref="addImagesThumb"
-      v-model="thumbnail"
+      v-model="content.thumbnail"
       @update:model-value="previewImagesThumb"
       v-show="false"
       accept="image/*"
     ></q-file>
+
+    <!-- File video -->
     <q-file
-      ref="addImagesPic"
-      v-model="picture"
-      @update:model-value="previewImagesPic"
+      ref="addImagesVid"
+      v-model="content.video"
+      @update:model-value="previewImagesVid"
       v-show="false"
-      accept="image/*"
+      accept="video/*"
     ></q-file>
+
+    <!-- Dialog success add module content -->
+    <q-dialog v-model="dialogSuccessAddModuleContent" persistent>
+      <q-card
+        class="q-pa-md justify-center bg-white full-width"
+        style="border-radius: 10px"
+      >
+        <div class="row text-center justify-center">
+          <q-img
+            no-spinner
+            src="~/assets/success-animation.gif"
+            width="200px"
+          ></q-img>
+        </div>
+        <div
+          class="q-mt-sm row justify-center text-center text-weight-bold"
+          style="color: #51585a; font-size: 20px"
+        >
+          Berhasil menambah isi module
+        </div>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
 import { fileToBase64 } from "src/helper";
-import { base64ToFile } from "src/helper";
+import { base64ToFile, video64ToImage64 } from "src/helper";
+import { jsonToFormData } from "src/helper";
 import CropImageComponent from "src/components/CropImageComponent";
+import VideoSnapshot from "video-snapshot";
 
 export default {
+  props: ["id"],
   data() {
     return {
       y: true,
-      //hanya untuk test
-      thumbnail: null,
+      dialogSuccessAddModuleContent: false,
+      loadingAddModuleContent: false,
       thumb64: null,
-      picture: null,
-      img64: null,
+      vid64: null,
       content: {
+        module_id: this.id,
         tittle: "",
         description: "",
         duration: null,
         thumbnail: null,
-        image_content: null,
-        type: "Materi",
+        video: null,
+        type: "video",
       },
     };
   },
-  watch: {
-    thumbnail(val) {
-      this.content.thumbnail = val;
-    },
-    picture(val) {
-      this.content.image_content = val;
-    },
-  },
   methods: {
-    clearImage() {
-      this.picture = null;
-      this.img = null;
+    clearVideo() {
+      this.content.video = null;
+      this.vid64 = null;
     },
     clearThumbnail() {
-      this.thumbnail = null;
+      this.content.thumbnail = null;
       this.thumb64 = null;
     },
     goToFileThumb() {
       this.$refs.addImagesThumb.pickFiles();
     },
     goToFilePic() {
-      this.$refs.addImagesPic.pickFiles();
+      this.$refs.addImagesVid.pickFiles();
     },
     async previewImagesThumb(file) {
       let promise = fileToBase64(file);
@@ -236,42 +272,49 @@ export default {
           })
           .onOk((data) => {
             this.thumb64 = data.dataUrl;
-            let file = base64ToFile(data.dataUrl);
-            this.thumbnail = file;
+            let file = base64ToFile(data.dataUrl, "thumbnail");
+            this.content.thumbnail = file;
           });
       });
     },
-    async previewImagesPic(file) {
+    async getImageFromVideo() {
+      const snapshoter = new VideoSnapshot(this.content.video);
+      const previewSrc = await snapshoter.takeSnapshot();
+      this.thumb64 = previewSrc;
+      this.content.thumbnail = base64ToFile(previewSrc);
+    },
+    async previewImagesVid(file) {
+      // console.log("sebelum base 64", file);
+      this.content.video = file;
       let promise = fileToBase64(file);
       promise.then((res) => {
-        this.$q
-          .dialog({
-            component: CropImageComponent,
-            componentProps: {
-              dataUrl: res.src,
-              aspectRatio: 16 / 9,
-            },
-          })
-          .onOk((data) => {
-            this.img64 = data.dataUrl;
-            let file = base64ToFile(data.dataUrl);
-            this.picture = file;
-          });
+        // console.log("setelah base 64", res);
+        this.vid64 = res.src;
+        this.getImageFromVideo();
       });
     },
     saveContent() {
-      console.log(this.content);
+      let formData = jsonToFormData(this.content);
+
       this.$refs.form.validate().then((valid) => {
-        if (valid && this.content.description.length) {
-          console.log(this.content);
-          this.content.key = new Date().getTime();
-          this.$store.commit("Module/ADD_CONTENT", this.content);
-          this.$q.notify({
-            color: "positive",
-            textColor: "white",
-            message: "Materi berhasil ditambahkan",
+        if (valid && this.content.description.length && this.content.video != null) {
+          return new Promise((resolve, reject) => {
+            this.loadingAddModuleContent = true;
+            this.$store
+              .dispatch("ModuleContent/addNewModuleContent", formData)
+              .then((res) => {
+                // console.log("cek hasil res", res);
+                resolve(res);
+              })
+              .catch((err) => {
+                reject(err);
+              })
+              .finally(() => {
+                this.loadingAddModuleContent = false;
+                this.dialogSuccessAddModuleContent = true;
+                setTimeout(this.refreshPage, 2000);
+              });
           });
-          this.$router.push("/add-materi");
         } else {
           this.$q.notify({
             color: "negative",
@@ -280,6 +323,9 @@ export default {
           });
         }
       });
+    },
+    refreshPage() {
+      this.$router.back();
     },
   },
 };

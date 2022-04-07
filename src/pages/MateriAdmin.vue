@@ -37,11 +37,11 @@ export default {
       this.getModules();
     },
     onItemClick() {
-      console.log("Clicked on an Item");
+      // console.log("Clicked on an Item");
     },
     getModules() {
       this.$store.dispatch("Module/getModules").then((res) => {
-        console.log("cek data", res);
+        // console.log("cek data", res);
         this.modules = res.data;
       });
     },

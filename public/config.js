@@ -1,4 +1,5 @@
-const API_URL = "http://192.168.1.4:8000";
+// const API_URL = "http://192.168.1.8:8000";
+const API_URL = "http://localhost:8000";
 
 // const API_URL = "https://api.laundrydigital.co.id";
 const STORAGE_URL = "https://cdn-agpaiidigital.online/laundrydigital";

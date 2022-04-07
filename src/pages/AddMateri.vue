@@ -184,11 +184,11 @@ export default {
       visibilities: [
         {
           label: "Public",
-          value: true,
+          value: 1,
         },
         {
           label: "Private",
-          value: false,
+          value: 0,
         },
       ],
       selectedVisibility: null,
@@ -292,6 +292,7 @@ export default {
                 textColor: "white",
                 message: "Berhasil menyimpan",
               });
+              console.log("hasil res", res);
               this.$router.push("/materi-admin");
             })
             .finally(() => {

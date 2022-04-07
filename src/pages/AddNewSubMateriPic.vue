@@ -5,11 +5,12 @@
       <div class="col-2 text-center self-cemter q-pt-lg">
         <q-btn
           no-caps
+          :disable="loadingAddModuleContent"
           outline
           flat
           text-color="black"
           label="Batal"
-          @click="$router.push('/add-materi')"
+          @click="$router.back()"
           style="background-color: #fff; width: 80%"
         />
       </div>
@@ -23,7 +24,10 @@
 
         <div>
           <q-form ref="form">
-            <q-card flat style="background-color: #eef0fc">
+            <q-card
+              flat
+              style="border: 1px solid grey; background-color: transparent"
+            >
               <!-- JIKA BELUM ADA THUMBNAIL -->
               <div v-if="!thumb64" class="row q-py-md" @click="goToFileThumb()">
                 <div class="col-3 self-center">
@@ -67,7 +71,7 @@
             <q-card
               flat
               class="q-py-xl q-mt-md"
-              style="background-color: #eef0fc"
+              style="border: 1px solid grey; background-color: transparent"
             >
               <!-- JIKA BELUM ADA GAMBAR -->
               <div @click="goToFilePic()" v-if="!picture">
@@ -118,7 +122,7 @@
             <q-input
               class="q-mt-md"
               outlined
-              style="background-color: #eef0fc"
+              style="background-color: transparent"
               label="Tambahkan Judul"
               v-model="content.tittle"
               :rules="[(v) => !!v || 'Judul tidak boleh kosong']"
@@ -126,17 +130,17 @@
             <q-editor
               class="q-mt-md"
               outlined
-              style="background-color: #eef0fc"
+              style="background-color: transparent"
               label="Isi Submateri"
               v-model="content.description"
               min-height="5rem"
-              :rules="[(val) => !!val.length || 'Isi tidak boleh kosong']"
+              :rules="[(val) => !!val.length || 'Deskripsi tidak boleh kosong']"
             />
             <q-input
               class="q-mt-md q-mb-md"
               outlined
               type="number"
-              style="background-color: #eef0fc"
+              style="background-color: transparent"
               label="Durasi Baca"
               v-model.number="content.duration"
               :rules="[(v) => !!v || 'Durasi tidak boleh kosong']"
@@ -151,6 +155,9 @@
       <!-- BUTTON SIMPAN -->
       <div class="col-2 text-center self-cemter q-pt-lg">
         <q-btn
+          no-caps
+          :loading="loadingAddModuleContent"
+          :disable="loadingAddModuleContent"
           flat
           text-color="white"
           label="Simpan"
@@ -159,6 +166,7 @@
         />
       </div>
     </div>
+    <!-- Thumbnail -->
     <q-file
       ref="addImagesThumb"
       v-model="thumbnail"
@@ -166,6 +174,8 @@
       v-show="false"
       accept="image/*"
     ></q-file>
+
+    <!-- image -->
     <q-file
       ref="addImagesPic"
       v-model="picture"
@@ -173,25 +183,49 @@
       v-show="false"
       accept="image/*"
     ></q-file>
+
+    <!-- Dialog success add module content -->
+    <q-dialog v-model="dialogSuccessAddModuleContent" persistent>
+      <q-card
+        class="q-pa-md justify-center bg-white full-width"
+        style="border-radius: 10px"
+      >
+        <div class="row text-center justify-center">
+          <q-img
+            no-spinner
+            src="~/assets/success-animation.gif"
+            width="200px"
+          ></q-img>
+        </div>
+        <div
+          class="q-mt-sm row justify-center text-center text-weight-bold"
+          style="color: #51585a; font-size: 20px"
+        >
+          Berhasil menambah isi module
+        </div>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
 import { fileToBase64 } from "src/helper";
 import { base64ToFile } from "src/helper";
+import { jsonToFormData } from "src/helper";
 import CropImageComponent from "src/components/CropImageComponent";
-
 export default {
+  props: ["id"],
   data() {
     return {
-      y: true,
-      //hanya untuk test
-      thumbnail: null,
+      dialogSuccessAddModuleContent: false,
+      loadingAddModuleContent: false,
       thumb64: null,
       picture: null,
       img64: null,
+      thumbnail: null,
       content: {
         tittle: "",
+        module_id: null,
         description: "",
         duration: null,
         thumbnail: null,
@@ -199,14 +233,6 @@ export default {
         type: "Materi",
       },
     };
-  },
-  watch: {
-    thumbnail(val) {
-      this.content.thumbnail = val;
-    },
-    picture(val) {
-      this.content.image_content = val;
-    },
   },
   methods: {
     clearImage() {
@@ -236,7 +262,7 @@ export default {
           })
           .onOk((data) => {
             this.thumb64 = data.dataUrl;
-            let file = base64ToFile(data.dataUrl);
+            let file = base64ToFile(data.dataUrl, "thumbnail");
             this.thumbnail = file;
           });
       });
@@ -254,24 +280,40 @@ export default {
           })
           .onOk((data) => {
             this.img64 = data.dataUrl;
-            let file = base64ToFile(data.dataUrl);
+            let file = base64ToFile(data.dataUrl, "image_content");
             this.picture = file;
           });
       });
     },
     saveContent() {
-      console.log(this.content);
+      // Thumbnail
+      this.content.thumbnail = this.thumbnail;
+      // Image Content
+      this.content.image_content = this.picture;
+      // module_id
+      this.content.module_id = this.id;
+
+      let formData = jsonToFormData(this.content);
+
       this.$refs.form.validate().then((valid) => {
-        if (valid && this.content.description.length) {
-          console.log(this.content);
-          this.content.key = new Date().getTime();
-          this.$store.commit("Module/ADD_CONTENT", this.content);
-          this.$q.notify({
-            color: "positive",
-            textColor: "white",
-            message: "Materi berhasil ditambahkan",
+        if (valid && this.content.description.length && this.content.image_content) {
+          return new Promise((resolve, reject) => {
+            this.loadingAddModuleContent = true;
+            this.$store
+              .dispatch("ModuleContent/addNewModuleContent", formData)
+              .then((res) => {
+                // console.log("cek hasil res", res);
+                resolve(res);
+              })
+              .catch((err) => {
+                reject(err);
+              })
+              .finally(() => {
+                this.loadingAddModuleContent = false;
+                this.dialogSuccessAddModuleContent = true;
+                setTimeout(this.refreshPage, 2000);
+              });
           });
-          this.$router.push("/add-materi");
         } else {
           this.$q.notify({
             color: "negative",
@@ -280,6 +322,9 @@ export default {
           });
         }
       });
+    },
+    refreshPage() {
+      this.$router.back();
     },
   },
 };

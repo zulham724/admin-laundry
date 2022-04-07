@@ -3,7 +3,7 @@
     <!-- Button edit -->
     <div class="row justify-end">
       <q-btn
-        @click="$router.push(`/edit-materi`)"
+        @click="$router.push(`/edit-materi/${this.id}`)"
         flat
         dense
         no-caps
@@ -20,11 +20,26 @@
         <!-- Image -->
         <div class="row full-width" style="border-radius: 10px; height: 170px">
           <q-img
+            v-if="moduleById.thumbnail"
             class="full-height full-width"
             no-spinner
             style="border-radius: 10px"
-            src="~/assets/thumbnail.svg"
+            :src="`${STORAGE_URL}/${moduleById.thumbnail.src}`"
           ></q-img>
+          <div
+            v-else
+            class="full-height full-width self-center text-center justify-center"
+            no-spinner
+            style="border-radius: 10px; display: block; background-color: white"
+          >
+            <q-img
+              class="q-mt-xl"
+              src="~/assets/icon/note.svg"
+              width="70px"
+              style="border-radius: 10px 10px 0px 0px"
+            >
+            </q-img>
+          </div>
         </div>
 
         <!-- Image -->
@@ -68,9 +83,7 @@
               class="row text-weight-medium"
               style="color: #616263; font-size: larger"
             >
-              Ini adalah deskripsi dari materi ini, dimana materi ini selalu
-              mempermudah penggunanya untuk bisa menggunakan akal sehat dan
-              batin
+              {{ moduleById.description }}
             </div>
           </div>
         </div>
@@ -80,7 +93,7 @@
           class="row text-weight-medium"
           style="color: #2a2b30; font-size: x-large"
         >
-          Teknik membangun bisnis yang sukses untuk pemula
+          {{ moduleById.tittle }}
         </div>
         <div class="row q-mt-xs">
           <!-- Status -->
@@ -94,10 +107,18 @@
             </div>
 
             <div
+              v-if="moduleById.is_public == 1"
               class="row text-weight-medium self-center"
               style="color: grey; font-size: medium"
             >
               Publik
+            </div>
+            <div
+              v-if="moduleById.is_public == 0"
+              class="row text-weight-medium self-center"
+              style="color: grey; font-size: medium"
+            >
+              Private
             </div>
           </div>
 
@@ -115,7 +136,7 @@
               class="row text-weight-medium self-center"
               style="color: grey; font-size: medium"
             >
-              21 Maret 2022
+              {{ moment(moduleById.created_at).locale("ID").format("LL") }}
             </div>
           </div>
 
@@ -133,7 +154,7 @@
               class="row text-weight-medium self-center"
               style="color: grey; font-size: medium"
             >
-              0 Kunjungan
+              {{ moduleById.count_content_is_read }} Kunjungan
             </div>
           </div>
 
@@ -151,7 +172,7 @@
               class="row text-weight-medium self-center"
               style="color: grey; font-size: medium"
             >
-              1 jam 45 menit
+              {{ moduleById.sum_duration }} menit
             </div>
           </div>
         </div>
@@ -182,22 +203,27 @@
             style="background-color: #eef0fc; border-radius: 0px 0px 10px 10px"
             class="q-pa-md q-py-xl"
           >
-            <q-virtual-scroll :items="demo" virtual-scroll-horizontal>
+            <q-virtual-scroll
+              :items="moduleById.contents"
+              virtual-scroll-horizontal
+            >
               <template v-slot="{ item, index }">
                 <div :key="index" :class="item.class">
                   <!-- Card -->
                   <div
-                    @click="itemClicked = true"
+                    @click="clickItem(item)"
                     style="
                       background-color: white;
                       border-radius: 10px;
                       width: 280px;
                     "
+                    class="q-mr-sm"
                   >
                     <div style="border-radius: 10px 10px 0px 0px">
-                      <div v-if="true">
+                      <div v-if="item.thumbnail">
                         <q-img
-                          src="~/assets/thumbnail.svg"
+                          no-spinner
+                          :src="`${STORAGE_URL}/${item.thumbnail.src}`"
                           height="180px"
                           style="border-radius: 10px 10px 0px 0px"
                         >
@@ -223,7 +249,7 @@
                         class="row text-weight-medium"
                         style="color: #2a2b30; font-size: larger"
                       >
-                        Part 1 - Anda Harus butuh modal yang kuat
+                        Part {{ index + 1 }} - {{ item.tittle }}
                       </div>
 
                       <div class="row q-mt-xl">
@@ -240,7 +266,7 @@
                             class="text-weight-medium self-center"
                             style="color: #2a2b30; font-size: larger"
                           >
-                            20 menit
+                            {{ item.duration }} menit
                           </div>
                         </div>
 
@@ -255,11 +281,17 @@
                               height="19px"
                             ></q-img>
                           </div>
-                          <div
+                           <div v-if="item.liked"
                             class="text-weight-medium self-center"
                             style="color: #2a2b30; font-size: larger"
                           >
-                            11
+                            {{ item.liked }}
+                          </div>
+                          <div v-else
+                            class="text-weight-medium self-center"
+                            style="color: #2a2b30; font-size: larger"
+                          >
+                            0
                           </div>
                         </div>
                       </div>
@@ -272,8 +304,7 @@
         </div>
       </div>
     </div>
-
-    <!-- Dialog -->
+    <!-- Dialog Item Click -->
     <q-dialog v-model="itemClicked" full-height full-width persistent>
       <q-card class="column full-height q-pa-sm">
         <div class="row justify-end">
@@ -292,7 +323,7 @@
             class="row justify-center text-center text-weight-medium"
             style="font-size: x-large; color: #2a2b30"
           >
-            Teknik membangun bisnis yang sukses untuk pemula
+            {{ item.tittle }}
           </div>
           <div class="row justify-center text-center q-gutter-x-sm">
             <!-- Like -->
@@ -306,7 +337,7 @@
               </div>
               <div
                 class="text-weight-medium self-center"
-                style="color: #2a2b30; font-size: larger"
+                style="color: grey; font-size: larger"
               >
                 100 likes
               </div>
@@ -326,7 +357,7 @@
                 class="row text-weight-medium self-center"
                 style="color: grey; font-size: medium"
               >
-                1 jam 45 menit
+                {{ moment(item.created_at).locale("ID").format("ll") }}
               </div>
             </div>
 
@@ -349,8 +380,15 @@
             </div>
           </div>
           <div class="row justify-center text-center q-mt-md">
+            <video
+              controls
+              style="border-radius: 10px"
+              v-if="item.video"
+              :src="`${STORAGE_URL}/${item.video.src}`"
+            ></video>
             <q-img
-              src="~/assets/thumbnail.svg"
+              v-else
+              :src="`${STORAGE_URL}/${item.thumbnail.src}`"
               width="800px"
               height="400px"
               style="border-radius: 10px 10px 0px 0px"
@@ -363,14 +401,12 @@
           >
             <div class="col-2" style="display: block"></div>
             <div class="col-8" style="display: block">
-              Ini adalah deskripsi dari anak sekolahan yang sedang pkl di
-              ardata. Saya sudah pkl di ardata selama 3 bulan lamanya dan itu
-              memberikan saya pengalaman yang lebih
+              {{ item.description }}
             </div>
             <div class="col-2" style="display: block"></div>
           </div>
           <!-- Button edit -->
-          <div class="row justify-center text-center q-mt-md">
+          <div v-if="false" class="row justify-center text-center q-mt-md">
             <q-btn
               @click="$router.push(`/edit-materi`)"
               flat
@@ -390,6 +426,7 @@
 </template>
 
 <script>
+import moment from "moment";
 const maxSize = 5;
 const demo = [];
 for (let i = 0; i < maxSize; i++) {
@@ -404,11 +441,41 @@ for (let i = 0; i < maxSize; i++) {
   });
 }
 export default {
+  props: ["id"],
   data() {
     return {
       demo,
       itemClicked: false,
+      moduleById: {},
+      STORAGE_URL: STORAGE_URL,
+      item: {},
     };
+  },
+  mounted() {
+    this.getModuleById();
+  },
+  methods: {
+    moment,
+
+    clickItem(item) {
+      this.itemClicked = true;
+      this.item = item;
+    },
+    getModuleById() {
+      return new Promise((resolve, reject) => {
+        this.$store
+          .dispatch("Module/getModuleById", this.id)
+          .then((res) => {
+            this.moduleById = res.data;
+            console.log("cek res", res.data);
+            resolve(res);
+          })
+          .catch((err) => {
+            reject(err);
+          })
+          .finally(() => {});
+      });
+    },
   },
 };
 </script>

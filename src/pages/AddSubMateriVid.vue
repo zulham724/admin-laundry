@@ -121,7 +121,7 @@
                 </div>
                 <div class="col-6" @click="clearVideo()">
                   <div><q-img src="~/assets/yt.svg" width="25%" /></div>
-                  <div class="text-weight-medium q-py-sm">ganti gambar</div>
+                  <div class="text-weight-medium q-py-sm">ganti video</div>
                 </div>
               </div>
             </q-card>
@@ -204,6 +204,7 @@ export default {
         duration: null,
         thumbnail: null,
         video: null,
+        type: "Video",
       },
     };
   },

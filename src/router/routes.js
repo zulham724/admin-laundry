@@ -37,12 +37,14 @@ const routes = [
         component: () => import("pages/MateriAdmin.vue"),
       },
       {
-        path: "/edit-materi",
+        path: "/edit-materi/:id",
         component: () => import("pages/EditMateri.vue"),
+        props: true,
       },
       {
-        path: "/detail-materi-admin",
+        path: "/detail-materi-admin/:id",
         component: () => import("pages/DetailMateriAdmin.vue"),
+        props: true,
       },
       {
         path: "/user",
@@ -63,6 +65,26 @@ const routes = [
       {
         path: "/add-sub-materi-vid",
         component: () => import("pages/AddSubMateriVid.vue"),
+      },
+      {
+        path: "/add-new-sub-materi-pic/:id",
+        component: () => import("pages/AddNewSubMateriPic.vue"),
+        props: true,
+      },
+      {
+        path: "/add-new-sub-materi-vid/:id",
+        component: () => import("pages/AddNewSubMateriVid.vue"),
+        props: true,
+      },
+      {
+        path: "/edit-sub-materi-pic/:id",
+        component: () => import("pages/EditSubMateriPic.vue"),
+        props: true,
+      },
+      {
+        path: "/edit-sub-materi-vid/:id",
+        component: () => import("pages/EditSubMateriVid.vue"),
+        props: true,
       },
 
       // Not completed yet
